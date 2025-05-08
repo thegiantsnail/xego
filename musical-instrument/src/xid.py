@@ -2,13 +2,14 @@
 
 import numpy as np
 import sounddevice as sd
-from audio.sound_library import load_sounds
-from audio.sound_player import SoundPlayer
 
 class Xid:
     def __init__(self, sample_rate=44100):
         self.sample_rate = sample_rate
-        self.oscillators = [{"frequency": 440.0, "volume": 0.5, "active": True, "waveform": "sine"}]  # Default oscillator
+        self.oscillators = [
+            {"frequency": 440.0, "volume": 0.5, "active": False, "waveform": "sine"}
+            for _ in range(6)
+        ]  # Initialize 6 oscillators
         self.running = True
 
         # Start the audio stream
@@ -50,10 +51,6 @@ class Xid:
         if 0 <= oscillator_index < len(self.oscillators):
             self.oscillators[oscillator_index]["active"] = active
 
-    def add_oscillator(self, frequency=440.0, volume=0.5, waveform="sine"):
-        """Add a new oscillator."""
-        self.oscillators.append({"frequency": frequency, "volume": volume, "active": True, "waveform": waveform})
-
     def set_waveform(self, oscillator_index, waveform):
         """Set the waveform of a specific oscillator."""
         if 0 <= oscillator_index < len(self.oscillators):
@@ -65,11 +62,3 @@ class Xid:
         self.running = False
         self.stream.stop()
         self.stream.close()
-
-    def play_sound(self, button):
-        # Play sound logic
-        pass
-
-    def handle_joystick(self, movement):
-        # Handle joystick movement
-        pass
