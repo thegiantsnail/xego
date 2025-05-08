@@ -12,13 +12,21 @@ class InputHandler:
             self.controller = None
 
     def update(self):
-        # Handle controller updates
-        pass
+        """Update the controller state."""
+        pygame.event.pump()
 
     def get_button_press(self):
-        # Return button press events
-        pass
+        """Return the index of the button pressed, if any."""
+        if self.controller:
+            for i in range(self.controller.get_numbuttons()):
+                if self.controller.get_button(i):
+                    return i
+        return None
 
     def get_joystick_movement(self):
-        # Return joystick movement events
-        pass
+        """Return joystick axis movements as (pitch, volume)."""
+        if self.controller:
+            pitch = self.controller.get_axis(1)  # Example: Y-axis for pitch
+            volume = self.controller.get_axis(3)  # Example: Z-axis for volume
+            return pitch, volume
+        return None

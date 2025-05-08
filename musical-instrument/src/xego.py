@@ -1,5 +1,6 @@
 import pygame
 from controller.input_handler import InputHandler
+from controller.mappings import Mappings
 from xid import Xid
 
 def main():
@@ -8,6 +9,7 @@ def main():
 
     input_handler = InputHandler()
     xid = Xid()  # Initialize the oscillator system
+    mappings = Mappings(xid)  # Pass Xid to Mappings
 
     clock = pygame.time.Clock()
 
@@ -21,11 +23,11 @@ def main():
         button_press = input_handler.get_button_press()
         joystick_movement = input_handler.get_joystick_movement()
 
-        # Map joystick movement to pitch and volume
+        if button_press is not None:
+            mappings.handle_button_press(button_press)
+
         if joystick_movement:
-            pitch, volume = joystick_movement
-            xid.set_frequency(440.0 + pitch * 200)  # Adjust pitch (base frequency ±200 Hz)
-            xid.set_volume(0.5 + volume * 0.5)  # Adjust volume (50% ±50%)
+            mappings.handle_joystick_movement(joystick_movement)
 
         clock.tick(60)
 

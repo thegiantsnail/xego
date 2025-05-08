@@ -8,8 +8,7 @@ from audio.sound_player import SoundPlayer
 class Xid:
     def __init__(self, sample_rate=44100):
         self.sample_rate = sample_rate
-        self.frequency = 440.0  # Default frequency (A4)
-        self.volume = 0.5  # Default volume (50%)
+        self.oscillators = [{"frequency": 440.0, "volume": 0.5, "active": True}]  # Default oscillator
         self.running = True
 
         # Start the audio stream
@@ -21,18 +20,32 @@ class Xid:
         self.stream.start()
 
     def audio_callback(self, outdata, frames, time, status):
-        """Generate audio samples for the oscillator."""
+        """Generate audio samples for all active oscillators."""
         t = (np.arange(frames) + time.outputBufferDacTime * self.sample_rate) / self.sample_rate
-        waveform = self.volume * np.sin(2 * np.pi * self.frequency * t)
+        waveform = np.zeros(frames)
+        for osc in self.oscillators:
+            if osc["active"]:
+                waveform += osc["volume"] * np.sin(2 * np.pi * osc["frequency"] * t)
         outdata[:] = waveform.reshape(-1, 1)
 
-    def set_frequency(self, frequency):
-        """Set the oscillator frequency."""
-        self.frequency = frequency
+    def set_frequency(self, frequency, oscillator_index=0):
+        """Set the frequency of a specific oscillator."""
+        if 0 <= oscillator_index < len(self.oscillators):
+            self.oscillators[oscillator_index]["frequency"] = frequency
 
-    def set_volume(self, volume):
-        """Set the oscillator volume."""
-        self.volume = max(0.0, min(volume, 1.0))  # Clamp volume between 0 and 1
+    def set_volume(self, volume, oscillator_index=0):
+        """Set the volume of a specific oscillator."""
+        if 0 <= oscillator_index < len(self.oscillators):
+            self.oscillators[oscillator_index]["volume"] = max(0.0, min(volume, 1.0))
+
+    def toggle_oscillator(self, oscillator_index, active):
+        """Toggle an oscillator on or off."""
+        if 0 <= oscillator_index < len(self.oscillators):
+            self.oscillators[oscillator_index]["active"] = active
+
+    def add_oscillator(self, frequency=440.0, volume=0.5):
+        """Add a new oscillator."""
+        self.oscillators.append({"frequency": frequency, "volume": volume, "active": True})
 
     def stop(self):
         """Stop the audio stream."""
